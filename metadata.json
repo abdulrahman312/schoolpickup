@@ -1,0 +1,5 @@
+{
+  "name": "School Pickup Coordinator",
+  "description": "A real-time school pickup coordination app connecting parents and teachers. Parents can notify arrival via mobile number search, and teachers get instant updates on a dashboard.",
+  "requestFramePermissions": []
+}
