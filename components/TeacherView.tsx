@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../services/supabase';
 import { Student } from '../types';
-import { LogOut, RefreshCw, AlertCircle, Volume2, School } from 'lucide-react';
+import { LogOut, RefreshCw, AlertCircle, Volume2, School, Bus } from 'lucide-react';
 
 interface TeacherViewProps {
   onLogout: () => void;
@@ -17,6 +17,10 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ onLogout }) => {
     if (!student.last_called_at) return false;
     const diff = new Date().getTime() - new Date(student.last_called_at).getTime();
     return diff < 3 * 60 * 60 * 1000;
+  };
+
+  const isBusStudent = (student: Student) => {
+    return student.bus_status && student.bus_status.toUpperCase() !== 'NO';
   };
 
   const fetchStudents = async () => {
@@ -148,17 +152,23 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ onLogout }) => {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 pb-20">
               {filteredStudents.map((student) => {
                 const active = isActive(student);
+                const isBus = isBusStudent(student);
+                
+                // Card styling based on state
+                let cardStyle = 'bg-white/80 border-white/50 text-gray-800 hover:bg-white hover:shadow-lg hover:shadow-indigo-900/5 hover:-translate-y-0.5 backdrop-blur-sm';
+                if (active) {
+                  cardStyle = 'bg-gradient-to-br from-green-500 to-emerald-600 border-transparent text-white shadow-lg shadow-green-500/30 z-10';
+                } else if (isBus) {
+                  cardStyle = 'bg-gradient-to-br from-blue-500 to-cyan-600 border-transparent text-white shadow-lg shadow-blue-500/30';
+                }
+
                 return (
                   <div
                     key={student.id}
-                    className={`relative p-4 rounded-xl border transition-all duration-500 group flex flex-col justify-between h-full min-h-[100px] ${
-                      active
-                        ? 'bg-gradient-to-br from-green-500 to-emerald-600 border-transparent text-white shadow-lg shadow-green-500/30 z-10'
-                        : 'bg-white/80 border-white/50 text-gray-800 hover:bg-white hover:shadow-lg hover:shadow-indigo-900/5 hover:-translate-y-0.5 backdrop-blur-sm'
-                    }`}
+                    className={`relative p-4 rounded-xl border transition-all duration-500 group flex flex-col justify-between h-full min-h-[100px] ${cardStyle}`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className={`text-sm font-bold leading-tight break-words w-full ${active ? 'text-white' : 'text-gray-900'}`}>
+                      <h3 className={`text-sm font-bold leading-tight break-words w-full ${active || isBus ? 'text-white' : 'text-gray-900'}`}>
                         {student.student_name}
                       </h3>
                       {active && (
@@ -166,15 +176,20 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ onLogout }) => {
                            <Volume2 className="w-3 h-3 text-white" />
                          </div>
                       )}
+                      {!active && isBus && (
+                        <div className="ml-2 p-1 bg-white/20 rounded backdrop-blur-md shrink-0">
+                          <Bus className="w-3 h-3 text-white" />
+                        </div>
+                      )}
                     </div>
                     
                     <div className="mt-auto pt-2 flex items-center justify-between">
                       <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-                        active 
+                        active || isBus
                           ? 'bg-white/20 text-white backdrop-blur-sm' 
                           : 'bg-gray-100 text-gray-500'
                       }`}>
-                        {active ? 'Waiting' : 'In Class'}
+                        {active ? 'Waiting' : isBus ? 'Bus Student' : 'In Class'}
                       </div>
                       
                       {active && (

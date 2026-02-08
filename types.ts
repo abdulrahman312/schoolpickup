@@ -4,6 +4,7 @@ export interface Student {
   class_name: string;
   parent_mobile: string;
   last_called_at: string | null;
+  bus_status?: string;
 }
 
 export interface RPCParams {
