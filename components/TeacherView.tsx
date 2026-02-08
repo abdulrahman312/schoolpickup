@@ -13,6 +13,17 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Auto-logout effect: Automatically logout after 1 hour to save resources
+  useEffect(() => {
+    const SESSION_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+    
+    const timer = setTimeout(() => {
+      onLogout();
+    }, SESSION_DURATION);
+
+    return () => clearTimeout(timer);
+  }, [onLogout]);
+
   const isActive = (student: Student) => {
     if (!student.last_called_at) return false;
     const diff = new Date().getTime() - new Date(student.last_called_at).getTime();
